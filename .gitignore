@@ -1,0 +1,12 @@
+# NuGet spam
+packages/
+
+# MonoDevelop spam
+*.userprefs
+
+# Visual Studio spam
+*.suo
+
+# outputs
+bin/
+obj/
