@@ -29,9 +29,6 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
-    <Reference Include="log4net">
-      <HintPath>packages\log4net.2.0.3\lib\net40-full\log4net.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -40,9 +37,11 @@
     <Compile Include="ResponderAttribute.cs" />
     <Compile Include="Util.cs" />
     <Compile Include="IUnhandledRequestHandler.cs" />
+    <Compile Include="ResponderExceptionEventArgs.cs" />
+    <Compile Include="EndpointEventArgs.cs" />
+    <Compile Include="ParseValueEventArgs.cs" />
+    <Compile Include="ListenerEventArgs.cs" />
+    <Compile Include="DistributionExceptionEventArgs.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
-  <ItemGroup>
-    <None Include="packages.config" />
-  </ItemGroup>
 </Project>
