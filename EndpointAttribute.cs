@@ -6,7 +6,7 @@ namespace RavuAlHemio.HttpDispatcher
     /// Marks a method that responds to HTTP requests at a specific path.
     /// </summary>
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = true, Inherited = true)]
-    class EndpointAttribute : Attribute
+    public class EndpointAttribute : Attribute
     {
         private readonly string _path;
 

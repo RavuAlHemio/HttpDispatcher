@@ -6,7 +6,7 @@ namespace RavuAlHemio.HttpDispatcher
     /// Marks a class that is fitted to respond to HTTP requests.
     /// </summary>
     [AttributeUsage(AttributeTargets.Class, Inherited = true)]
-    class ResponderAttribute : Attribute
+    public class ResponderAttribute : Attribute
     {
         /// <summary>
         /// A common path prefix for all the endpoints declared in this class, or <c>null</c> if

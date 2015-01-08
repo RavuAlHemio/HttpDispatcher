@@ -6,7 +6,7 @@
     <ProjectGuid>{3E3E19D7-51AF-462C-91EF-E4CB0F3C7883}</ProjectGuid>
     <OutputType>Library</OutputType>
     <RootNamespace>RavuAlHemio.HttpDispatcher</RootNamespace>
-    <AssemblyName>HttpDispatcher</AssemblyName>
+    <AssemblyName>RavuAlHemio.HttpDispatcher</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
