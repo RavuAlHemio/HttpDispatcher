@@ -5,7 +5,7 @@ using System.Text;
 
 namespace RavuAlHemio.HttpDispatcher
 {
-    public static class Util
+    public static class HttpDispatcherUtil
     {
         /// <summary>
         /// A UTF-8 encoding which doesn't emit Byte Order Marks and throws exceptions on

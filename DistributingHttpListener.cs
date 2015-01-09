@@ -318,7 +318,7 @@ namespace RavuAlHemio.HttpDispatcher
                                 throw new ArgumentException(string.Format("argument '{0}' is unmatched and has no default value", argument.Name));
                             }
 
-                            var str = Util.UrlDecodeUtf8(argumentStrings[argument.Name]);
+                            var str = HttpDispatcherUtil.UrlDecodeUtf8(argumentStrings[argument.Name]);
 
                             var e = new ParseValueEventArgs(context, responder, method, argument.Name, argument.ParameterType, str);
                             OnParseValue(e);
@@ -338,7 +338,7 @@ namespace RavuAlHemio.HttpDispatcher
                             }
                             else if (argument.ParameterType == typeof(int))
                             {
-                                var value = Util.ParseIntOrNull(str);
+                                var value = HttpDispatcherUtil.ParseIntOrNull(str);
                                 if (!value.HasValue)
                                 {
                                     failed = true;
@@ -348,7 +348,7 @@ namespace RavuAlHemio.HttpDispatcher
                             }
                             else if (argument.ParameterType == typeof(long))
                             {
-                                var value = Util.ParseLongOrNull(str);
+                                var value = HttpDispatcherUtil.ParseLongOrNull(str);
                                 if (!value.HasValue)
                                 {
                                     failed = true;
@@ -358,7 +358,7 @@ namespace RavuAlHemio.HttpDispatcher
                             }
                             else if (argument.ParameterType == typeof(double))
                             {
-                                var value = Util.ParseDoubleOrNull(str);
+                                var value = HttpDispatcherUtil.ParseDoubleOrNull(str);
                                 if (!value.HasValue)
                                 {
                                     failed = true;
@@ -368,7 +368,7 @@ namespace RavuAlHemio.HttpDispatcher
                             }
                             else if (argument.ParameterType == typeof(decimal))
                             {
-                                var value = Util.ParseDecimalOrNull(str);
+                                var value = HttpDispatcherUtil.ParseDecimalOrNull(str);
                                 if (!value.HasValue)
                                 {
                                     failed = true;
@@ -464,7 +464,7 @@ namespace RavuAlHemio.HttpDispatcher
             context.Response.Headers[HttpResponseHeader.ContentType] = "application/json";
             context.Response.StatusCode = 404;
             const string jsonString = "{\"status\":\"error\",\"error\":\"not found\"}";
-            var jsonBytes = Util.Utf8NoBom.GetBytes(jsonString);
+            var jsonBytes = HttpDispatcherUtil.Utf8NoBom.GetBytes(jsonString);
             context.Response.ContentLength64 = jsonBytes.LongLength;
             context.Response.Close(jsonBytes, true);
         }
@@ -477,7 +477,7 @@ namespace RavuAlHemio.HttpDispatcher
         public static void SendJson500Exception(HttpListenerContext context, Exception exception)
         {
             const string jsonString = "{\"status\":\"error\",\"error\":\"exception thrown\",\"errorType\":\"EXCEPTION\"}";
-            var jsonBytes = Util.Utf8NoBom.GetBytes(jsonString);
+            var jsonBytes = HttpDispatcherUtil.Utf8NoBom.GetBytes(jsonString);
             context.Response.StatusCode = 500;
             context.Response.StatusDescription = "Internal Server Error";
             context.Response.ContentType = "text/plain";

@@ -35,7 +35,7 @@
     <Compile Include="DistributingHttpListener.cs" />
     <Compile Include="EndpointAttribute.cs" />
     <Compile Include="ResponderAttribute.cs" />
-    <Compile Include="Util.cs" />
+    <Compile Include="HttpDispatcherUtil.cs" />
     <Compile Include="IUnhandledRequestHandler.cs" />
     <Compile Include="ResponderExceptionEventArgs.cs" />
     <Compile Include="EndpointEventArgs.cs" />
