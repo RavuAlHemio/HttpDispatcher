@@ -1,5 +1,6 @@
 # NuGet spam
 packages/
+*.nupkg
 
 # MonoDevelop spam
 *.userprefs
