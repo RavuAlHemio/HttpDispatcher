@@ -237,6 +237,31 @@ namespace RavuAlHemio.HttpDispatcher
             // find a responder
             foreach (var responder in Responders)
             {
+                var endpointPrefixes = new HashSet<string>();
+                foreach (
+                    var responderAttribute in
+                        responder.GetType()
+                            .GetCustomAttributes(typeof (ResponderAttribute), true)
+                            .Select(a => (ResponderAttribute) a))
+                {
+                    var pathPrefix = responderAttribute.Path;
+                    if (pathPrefix == null)
+                    {
+                        endpointPrefixes.Add("");
+                        continue;
+                    }
+                    while (pathPrefix.EndsWith("/"))
+                    {
+                        pathPrefix = pathPrefix.Substring(0, pathPrefix.Length - 1);
+                    }
+                    if (!pathPrefix.StartsWith("/"))
+                    {
+                        pathPrefix = "/" + pathPrefix;
+                    }
+
+                    endpointPrefixes.Add(pathPrefix);
+                }
+
                 // find a public, non-static method that would respond to this request
                 foreach (var method in responder.GetType().GetMethods(BindingFlags.Instance | BindingFlags.Public))
                 {
@@ -269,15 +294,24 @@ namespace RavuAlHemio.HttpDispatcher
                                 }
                             });
 
-                        var regexString = "^[/]" + string.Join("[/]", newBits) + "$";
-                        var regex = RegexCache.ContainsKey(regexString)
-                            ? RegexCache[regexString]
-                            : (RegexCache[regexString] = new Regex(regexString));
-
-                        var match = regex.Match(path);
-                        if (!match.Success)
+                        Match match = null;
+                        foreach (var endpointPrefix in endpointPrefixes)
                         {
-                            // the path handled by this endpoint doesn't match the request's path
+                            var regexString = "^" + Regex.Escape(endpointPrefix) + string.Join("[/]", newBits) + "$";
+                            var regex = RegexCache.ContainsKey(regexString)
+                                ? RegexCache[regexString]
+                                : (RegexCache[regexString] = new Regex(regexString));
+
+                            match = regex.Match(path);
+                            if (match.Success)
+                            {
+                                // the path handled by this endpoint matches the request's path
+                                break;
+                            }
+                        }
+                        if (match == null || !match.Success)
+                        {
+                            // this endpoint doesn't match the path
                             continue;
                         }
 
