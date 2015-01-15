@@ -269,7 +269,7 @@ namespace RavuAlHemio.HttpDispatcher
                                 }
                             });
 
-                        var regexString = "^" + string.Join("[/]", newBits) + "$";
+                        var regexString = "^[/]" + string.Join("[/]", newBits) + "$";
                         var regex = RegexCache.ContainsKey(regexString)
                             ? RegexCache[regexString]
                             : (RegexCache[regexString] = new Regex(regexString));
