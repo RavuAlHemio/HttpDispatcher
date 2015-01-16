@@ -466,7 +466,20 @@ namespace RavuAlHemio.HttpDispatcher
         {
             while (!_stopNow)
             {
-                var context = Listener.GetContext();
+                HttpListenerContext context;
+                try
+                {
+                    context = Listener.GetContext();
+                }
+                catch (HttpListenerException ex)
+                {
+                    if (_stopNow && ex.ErrorCode == HttpDispatcherUtil.ErrorOperationAborted)
+                    {
+                        // we expect this to happen
+                        break;
+                    }
+                    throw;
+                }
 
                 ThreadPool.QueueUserWorkItem(c =>
                 {

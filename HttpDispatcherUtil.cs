@@ -8,6 +8,13 @@ namespace RavuAlHemio.HttpDispatcher
     public static class HttpDispatcherUtil
     {
         /// <summary>
+        /// The <c>ERROR_OPERATION_ABORTED</c> Win32 error code, which is raised if a
+        /// <see cref="System.Net.HttpListener"/> is closed while another thread is
+        /// waiting for a request.
+        /// </summary>
+        public const int ErrorOperationAborted = 995;
+
+        /// <summary>
         /// A UTF-8 encoding which doesn't emit Byte Order Marks and throws exceptions on
         /// encoding/decoding failure.
         /// </summary>
