@@ -484,19 +484,22 @@ namespace RavuAlHemio.HttpDispatcher
                 ThreadPool.QueueUserWorkItem(c =>
                 {
                     var ctx = (HttpListenerContext) c;
-                    try
+                    using (ctx.Response)
                     {
-                        HandleRequest(ctx);
-                    }
-                    catch (Exception ex)
-                    {
-                        var deea = new DistributionExceptionEventArgs(context, ex);
-                        OnDistributionException(deea);
-                        if (deea.Responded)
+                        try
                         {
-                            return;
+                            HandleRequest(ctx);
                         }
-                        SendJson500Exception(context, ex);
+                        catch (Exception ex)
+                        {
+                            var deea = new DistributionExceptionEventArgs(context, ex);
+                            OnDistributionException(deea);
+                            if (deea.Responded)
+                            {
+                                return;
+                            }
+                            SendJson500Exception(context, ex);
+                        }
                     }
                 }, context);
             }
