@@ -442,7 +442,7 @@ namespace RavuAlHemio.HttpDispatcher
                             {
                                 return;
                             }
-                            SendJson500Exception(context, ex);
+                            SendJson500Exception(context, exc);
                         }
                         return;
                     }
