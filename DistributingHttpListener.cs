@@ -19,6 +19,8 @@ namespace RavuAlHemio.HttpDispatcher
         private readonly Thread _acceptorThread;
         protected readonly HttpListener Listener;
         protected readonly List<object> Responders;
+        protected readonly Dictionary<EndpointAttribute, string> EndpointAttributeToRegexString;
+        protected readonly Dictionary<EndpointAttribute, HashSet<string>> EndpointAttributeToGroupNames;
         protected readonly Dictionary<string, Regex> RegexCache;
 
         /// <summary>
@@ -135,6 +137,8 @@ namespace RavuAlHemio.HttpDispatcher
             Responders = new List<object>();
             _acceptorThread = new Thread(Proc) {Name = "DistributingHttpListener acceptor"};
             RegexCache = new Dictionary<string, Regex>();
+            EndpointAttributeToRegexString = new Dictionary<EndpointAttribute, string>();
+            EndpointAttributeToGroupNames = new Dictionary<EndpointAttribute, HashSet<string>>();
 
             Listener = new HttpListener();
             Listener.Prefixes.Add(uriPrefix);
@@ -274,18 +278,22 @@ namespace RavuAlHemio.HttpDispatcher
                             continue;
                         }
 
-                        // construct a regular expression pattern to match the path of the endpoint
-                        var groupNames = new HashSet<string>();
-                        var newBits = endpoint.Path.Split('/').Select(p =>
+                        // see if we already have a pattern for this attribute
+                        if (!EndpointAttributeToRegexString.ContainsKey(endpoint))
+                        {
+                            // nope
+                            // construct a regular expression pattern to match the path of the endpoint
+                            var newGroupNames = new HashSet<string>();
+                            var newBits = endpoint.Path.Split('/').Select(p =>
                             {
                                 if (IsPlaceholder(p))
                                 {
                                     var placeholderText = p.Substring(1, p.Length - 2);
-                                    if (groupNames.Contains(placeholderText))
+                                    if (newGroupNames.Contains(placeholderText))
                                     {
                                         throw new ArgumentException(string.Format("multiple placeholders named '{0}' in path endpoint", placeholderText));
                                     }
-                                    groupNames.Add(placeholderText);
+                                    newGroupNames.Add(placeholderText);
                                     return string.Format("(?<{0}>[^/]+)", placeholderText);
                                 }
                                 else
@@ -293,11 +301,17 @@ namespace RavuAlHemio.HttpDispatcher
                                     return Regex.Escape(p);
                                 }
                             });
+                            var regexString = string.Join("[/]", newBits);
+                            EndpointAttributeToRegexString[endpoint] = regexString;
+                            EndpointAttributeToGroupNames[endpoint] = newGroupNames;
+                        }
 
+                        var endpointPart = EndpointAttributeToRegexString[endpoint];
+                        var groupNames = EndpointAttributeToGroupNames[endpoint];
                         Match match = null;
                         foreach (var endpointPrefix in endpointPrefixes)
                         {
-                            var regexString = "^" + Regex.Escape(endpointPrefix) + string.Join("[/]", newBits) + "$";
+                            var regexString = "^" + Regex.Escape(endpointPrefix) + endpointPart + "$";
                             var regex = RegexCache.ContainsKey(regexString)
                                 ? RegexCache[regexString]
                                 : (RegexCache[regexString] = new Regex(regexString));
