@@ -12,4 +12,8 @@
     <copyright>Copyright &#169; 2015 Ond&#345;ej Ho&#353;ek</copyright>
     <tags>HttpListener</tags>
   </metadata>
+  <files>
+    <file src="bin/Debug/RavuAlHemio.HttpDispatcher.dll" target="lib\net45\" />
+    <file src="bin/Debug/RavuAlHemio.HttpDispatcher.pdb" target="lib\net45\" />
+  </files>
 </package>
