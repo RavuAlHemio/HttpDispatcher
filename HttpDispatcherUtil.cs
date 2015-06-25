@@ -66,7 +66,7 @@ namespace RavuAlHemio.HttpDispatcher
                         // "...%z..."
                         bytes.Add((byte)'%');
                         bytes.Add(numer.Current);
-                        break;
+                        continue;
                     }
                     if (!numer.MoveNext())
                     {
@@ -83,10 +83,10 @@ namespace RavuAlHemio.HttpDispatcher
                         bytes.Add((byte)'%');
                         bytes.Add(topByte);
                         bytes.Add(bottomByte);
-                        break;
+                        continue;
                     }
 
-                    var unescapedByte = (byte)((topByte << 4) | bottomByte);
+                    var unescapedByte = (byte)((top.Value << 4) | bottom.Value);
                     bytes.Add(unescapedByte);
                 }
                 else
