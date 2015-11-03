@@ -526,12 +526,19 @@ namespace RavuAlHemio.HttpDispatcher
         /// <param name="context">The context to respond with.</param>
         public static void SendJson404(HttpListenerContext context)
         {
-            context.Response.Headers[HttpResponseHeader.ContentType] = "application/json";
-            context.Response.StatusCode = 404;
-            const string jsonString = "{\"status\":\"error\",\"error\":\"not found\"}";
-            var jsonBytes = HttpDispatcherUtil.Utf8NoBom.GetBytes(jsonString);
-            context.Response.ContentLength64 = jsonBytes.LongLength;
-            context.Response.Close(jsonBytes, true);
+            try
+            {
+                context.Response.Headers[HttpResponseHeader.ContentType] = "application/json";
+                context.Response.StatusCode = 404;
+                const string jsonString = "{\"status\":\"error\",\"error\":\"not found\"}";
+                var jsonBytes = HttpDispatcherUtil.Utf8NoBom.GetBytes(jsonString);
+                context.Response.ContentLength64 = jsonBytes.LongLength;
+                context.Response.Close(jsonBytes, true);
+            }
+            catch (Exception)
+            {
+                // there's nothing we can do...
+            }
         }
 
         /// <summary>
@@ -541,13 +548,20 @@ namespace RavuAlHemio.HttpDispatcher
         /// <param name="exception">The exception that was thrown.</param>
         public static void SendJson500Exception(HttpListenerContext context, Exception exception)
         {
-            const string jsonString = "{\"status\":\"error\",\"error\":\"exception thrown\",\"errorType\":\"EXCEPTION\"}";
-            var jsonBytes = HttpDispatcherUtil.Utf8NoBom.GetBytes(jsonString);
-            context.Response.StatusCode = 500;
-            context.Response.StatusDescription = "Internal Server Error";
-            context.Response.ContentType = "text/plain";
-            context.Response.ContentLength64 = jsonBytes.LongLength;
-            context.Response.Close(jsonBytes, true);
+            try
+            {
+                const string jsonString = "{\"status\":\"error\",\"error\":\"exception thrown\",\"errorType\":\"EXCEPTION\"}";
+                var jsonBytes = HttpDispatcherUtil.Utf8NoBom.GetBytes(jsonString);
+                context.Response.StatusCode = 500;
+                context.Response.StatusDescription = "Internal Server Error";
+                context.Response.ContentType = "text/plain";
+                context.Response.ContentLength64 = jsonBytes.LongLength;
+                context.Response.Close(jsonBytes, true);
+            }
+            catch (Exception)
+            {
+                // there's nothing we can do...
+            }
         }
     }
 }
