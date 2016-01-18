@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Reflection;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 
@@ -229,11 +230,19 @@ namespace RavuAlHemio.HttpDispatcher
         protected virtual void HandleRequest(HttpListenerContext context)
         {
             var httpMethod = context.Request.HttpMethod;
+            var rawUrl = new StringBuilder(context.Request.RawUrl);
+
+            // strip off multiple initial slashes
+            while (rawUrl.Length > 1 && rawUrl[0] == '/' && rawUrl[1] == '/')
+            {
+                rawUrl.Remove(0, 1);
+            }
+
             var realUrl = new Uri(string.Format(
                 "{0}://{1}{2}",
                 context.Request.IsSecureConnection ? "https" : "http",
                 context.Request.UserHostName,
-                context.Request.RawUrl
+                rawUrl
             ));
             var path = realUrl.AbsolutePath;
 
