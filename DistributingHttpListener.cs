@@ -229,7 +229,13 @@ namespace RavuAlHemio.HttpDispatcher
         protected virtual void HandleRequest(HttpListenerContext context)
         {
             var httpMethod = context.Request.HttpMethod;
-            var path = context.Request.Url.AbsolutePath;
+            var realUrl = new Uri(string.Format(
+                "{0}://{1}{2}",
+                context.Request.IsSecureConnection ? "https" : "http",
+                context.Request.UserHostName,
+                context.Request.RawUrl
+            ));
+            var path = realUrl.AbsolutePath;
 
             var lea = new ListenerEventArgs(context);
             OnRequestReceived(lea);
