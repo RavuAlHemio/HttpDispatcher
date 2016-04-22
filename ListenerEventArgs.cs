@@ -22,8 +22,7 @@ namespace RavuAlHemio.HttpDispatcher
         public bool Responded { get; set; }
 
         /// <summary>
-        /// Initializes a new instance of the
-        /// <see cref="DistributingHttpListenerEventArgs"/> class.
+        /// Initializes a new instance of the <see cref="ListenerEventArgs"/> class.
         /// </summary>
         /// <param name="context">The <see cref="HttpListenerContext"/> containing
         /// information pertaining to the active request.</param>

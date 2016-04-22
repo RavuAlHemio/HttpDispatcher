@@ -43,6 +43,7 @@
     <Compile Include="ParseValueEventArgs.cs" />
     <Compile Include="ListenerEventArgs.cs" />
     <Compile Include="DistributionExceptionEventArgs.cs" />
+    <Compile Include="UnhandledRequestEventArgs.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="RavuAlHemio.HttpDispatcher.nuspec" />

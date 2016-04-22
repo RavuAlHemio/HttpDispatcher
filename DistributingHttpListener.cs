@@ -62,7 +62,7 @@ namespace RavuAlHemio.HttpDispatcher
         /// <summary>
         /// Occurs if no matching endpoint was found for a request.
         /// </summary>
-        public event EventHandler<ListenerEventArgs> UnhandledRequest;
+        public event EventHandler<UnhandledRequestEventArgs> UnhandledRequest;
 
         #region event plumbing
         protected virtual void OnRequestReceived(ListenerEventArgs e)
@@ -119,7 +119,7 @@ namespace RavuAlHemio.HttpDispatcher
             }
         }
 
-        protected virtual void OnUnhandledRequest(ListenerEventArgs e)
+        protected virtual void OnUnhandledRequest(UnhandledRequestEventArgs e)
         {
             var handler = UnhandledRequest;
             if (handler != null)
@@ -231,6 +231,7 @@ namespace RavuAlHemio.HttpDispatcher
         {
             var httpMethod = context.Request.HttpMethod;
             var rawUrl = new StringBuilder(context.Request.RawUrl);
+            List<string> availableMethodsForPath = null;
 
             // strip off multiple initial slashes
             while (rawUrl.Length > 1 && rawUrl[0] == '/' && rawUrl[1] == '/')
@@ -287,12 +288,6 @@ namespace RavuAlHemio.HttpDispatcher
                     // for each endpoint attribute this method has
                     foreach (var endpoint in method.GetCustomAttributes(typeof (EndpointAttribute), true).Select(a => (EndpointAttribute)a))
                     {
-                        if (endpoint.Method != null && endpoint.Method != httpMethod)
-                        {
-                            // endpoint's HTTP method doesn't match request's HTTP method
-                            continue;
-                        }
-
                         // see if we already have a pattern for this attribute
                         if (!EndpointAttributeToRegexString.ContainsKey(endpoint))
                         {
@@ -329,7 +324,7 @@ namespace RavuAlHemio.HttpDispatcher
                             var regexString = "^" + Regex.Escape(endpointPrefix) + endpointPart + "$";
                             var regex = RegexCache.ContainsKey(regexString)
                                 ? RegexCache[regexString]
-                                : (RegexCache[regexString] = new Regex(regexString));
+                                : (RegexCache[regexString] = new Regex(regexString, RegexOptions.Compiled));
 
                             match = regex.Match(path);
                             if (match.Success)
@@ -451,6 +446,17 @@ namespace RavuAlHemio.HttpDispatcher
                             continue;
                         }
 
+                        if (endpoint.Method != null && endpoint.Method != httpMethod)
+                        {
+                            // endpoint's HTTP method doesn't match request's HTTP method
+                            if (availableMethodsForPath == null)
+                            {
+                                availableMethodsForPath = new List<string>();
+                            }
+                            availableMethodsForPath.Add(endpoint.Method);
+                            continue;
+                        }
+
                         // if we got this far, dispatch it
                         var eea = new EndpointEventArgs(context, responder, method);
                         OnCallingEndpoint(eea);
@@ -479,8 +485,12 @@ namespace RavuAlHemio.HttpDispatcher
             }
 
             // call the unhandled request handler
-            OnUnhandledRequest(lea);
-            if (lea.Responded)
+            var urea = new UnhandledRequestEventArgs(context)
+            {
+                AvailableMethodsForPath = availableMethodsForPath
+            };
+            OnUnhandledRequest(urea);
+            if (urea.Responded)
             {
                 return;
             }
