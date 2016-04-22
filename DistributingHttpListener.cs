@@ -231,7 +231,7 @@ namespace RavuAlHemio.HttpDispatcher
         {
             var httpMethod = context.Request.HttpMethod;
             var rawUrl = new StringBuilder(context.Request.RawUrl);
-            List<string> availableMethodsForPath = null;
+            var availableMethodsForPath = new List<string>();
 
             // strip off multiple initial slashes
             while (rawUrl.Length > 1 && rawUrl[0] == '/' && rawUrl[1] == '/')
