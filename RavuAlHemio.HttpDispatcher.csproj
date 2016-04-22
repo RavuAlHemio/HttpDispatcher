@@ -37,7 +37,6 @@
     <Compile Include="EndpointAttribute.cs" />
     <Compile Include="ResponderAttribute.cs" />
     <Compile Include="HttpDispatcherUtil.cs" />
-    <Compile Include="IUnhandledRequestHandler.cs" />
     <Compile Include="ResponderExceptionEventArgs.cs" />
     <Compile Include="EndpointEventArgs.cs" />
     <Compile Include="ParseValueEventArgs.cs" />
