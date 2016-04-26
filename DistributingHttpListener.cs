@@ -42,12 +42,6 @@ namespace RavuAlHemio.HttpDispatcher
         public event EventHandler<EndpointEventArgs> CallingEndpoint;
 
         /// <summary>
-        /// Occurs after a matching endpoint has been found and called, and it has
-        /// returned without throwing an exception.
-        /// </summary>
-        public event EventHandler<EndpointEventArgs> EndpointCalled;
-
-        /// <summary>
         /// Occurs after a matching endpoint has been found and called, if an exception
         /// was thrown during its execution.
         /// </summary>
@@ -86,15 +80,6 @@ namespace RavuAlHemio.HttpDispatcher
         protected virtual void OnCallingEndpoint(EndpointEventArgs e)
         {
             var handler = CallingEndpoint;
-            if (handler != null)
-            {
-                handler(this, e);
-            }
-        }
-
-        protected virtual void OnEndpointCalled(EndpointEventArgs e)
-        {
-            var handler = EndpointCalled;
             if (handler != null)
             {
                 handler(this, e);
