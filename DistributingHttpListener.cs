@@ -379,7 +379,8 @@ namespace RavuAlHemio.HttpDispatcher
                             {
                                 argValues.Add(str);
                             }
-                            else if (argument.ParameterType == typeof(int))
+                            else if (argument.ParameterType == typeof(int)
+                                || argument.ParameterType == typeof(int?))
                             {
                                 var value = HttpDispatcherUtil.ParseIntOrNull(str);
                                 if (!value.HasValue)
@@ -389,7 +390,8 @@ namespace RavuAlHemio.HttpDispatcher
                                 }
                                 argValues.Add(value.Value);
                             }
-                            else if (argument.ParameterType == typeof(long))
+                            else if (argument.ParameterType == typeof(long)
+                                || argument.ParameterType == typeof(long?))
                             {
                                 var value = HttpDispatcherUtil.ParseLongOrNull(str);
                                 if (!value.HasValue)
@@ -399,7 +401,8 @@ namespace RavuAlHemio.HttpDispatcher
                                 }
                                 argValues.Add(value.Value);
                             }
-                            else if (argument.ParameterType == typeof(double))
+                            else if (argument.ParameterType == typeof(double)
+                                || argument.ParameterType == typeof(double?))
                             {
                                 var value = HttpDispatcherUtil.ParseDoubleOrNull(str);
                                 if (!value.HasValue)
@@ -409,7 +412,8 @@ namespace RavuAlHemio.HttpDispatcher
                                 }
                                 argValues.Add(value.Value);
                             }
-                            else if (argument.ParameterType == typeof(decimal))
+                            else if (argument.ParameterType == typeof(decimal)
+                                || argument.ParameterType == typeof(decimal?))
                             {
                                 var value = HttpDispatcherUtil.ParseDecimalOrNull(str);
                                 if (!value.HasValue)
