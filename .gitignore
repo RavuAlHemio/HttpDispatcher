@@ -11,3 +11,6 @@ packages/
 # outputs
 bin/
 obj/
+
+# user-specific stuff
+*.user
