@@ -61,56 +61,32 @@ namespace RavuAlHemio.HttpDispatcher
         #region event plumbing
         protected virtual void OnRequestReceived(ListenerEventArgs e)
         {
-            var handler = RequestReceived;
-            if (handler != null)
-            {
-                handler(this, e);
-            }
+            RequestReceived?.Invoke(this, e);
         }
 
         protected virtual void OnParseValue(ParseValueEventArgs e)
         {
-            var handler = ParseValue;
-            if (handler != null)
-            {
-                handler(this, e);
-            }
+            ParseValue?.Invoke(this, e);
         }
 
         protected virtual void OnCallingEndpoint(EndpointEventArgs e)
         {
-            var handler = CallingEndpoint;
-            if (handler != null)
-            {
-                handler(this, e);
-            }
+            CallingEndpoint?.Invoke(this, e);
         }
 
         protected virtual void OnResponderException(ResponderExceptionEventArgs e)
         {
-            var handler = ResponderException;
-            if (handler != null)
-            {
-                handler(this, e);
-            }
+            ResponderException?.Invoke(this, e);
         }
 
         protected virtual void OnDistributionException(DistributionExceptionEventArgs e)
         {
-            var handler = DistributionException;
-            if (handler != null)
-            {
-                handler(this, e);
-            }
+            DistributionException?.Invoke(this, e);
         }
 
         protected virtual void OnUnhandledRequest(UnhandledRequestEventArgs e)
         {
-            var handler = UnhandledRequest;
-            if (handler != null)
-            {
-                handler(this, e);
-            }
+            UnhandledRequest?.Invoke(this, e);
         }
         #endregion
 
