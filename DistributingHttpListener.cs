@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
+using RavuAlHemio.HttpDispatcher.Matching;
 
 namespace RavuAlHemio.HttpDispatcher
 {
@@ -20,8 +22,7 @@ namespace RavuAlHemio.HttpDispatcher
         private readonly Thread _acceptorThread;
         protected readonly HttpListener Listener;
         protected readonly List<object> Responders;
-        protected readonly Dictionary<EndpointAttribute, string> EndpointAttributeToRegexString;
-        protected readonly Dictionary<EndpointAttribute, HashSet<string>> EndpointAttributeToGroupNames;
+        protected readonly List<UriHandler> Handlers;
         protected readonly Dictionary<string, Regex> RegexCache;
 
         /// <summary>
@@ -97,10 +98,9 @@ namespace RavuAlHemio.HttpDispatcher
         public DistributingHttpListener(string uriPrefix)
         {
             Responders = new List<object>();
+            Handlers = new List<UriHandler>();
             _acceptorThread = new Thread(Proc) {Name = "DistributingHttpListener acceptor"};
             RegexCache = new Dictionary<string, Regex>();
-            EndpointAttributeToRegexString = new Dictionary<EndpointAttribute, string>();
-            EndpointAttributeToGroupNames = new Dictionary<EndpointAttribute, HashSet<string>>();
 
             Listener = new HttpListener();
             Listener.Prefixes.Add(uriPrefix);
@@ -110,24 +110,107 @@ namespace RavuAlHemio.HttpDispatcher
         /// Adds a new responder to the responder chain.
         /// </summary>
         /// <param name="newResponder">The responder to add.</param>
-        public void AddResponder(object newResponder)
+        public virtual void AddResponder(object newResponder)
         {
             if (newResponder == null)
             {
-                throw new ArgumentNullException("newResponder");
+                throw new ArgumentNullException(nameof(newResponder));
             }
 
             if (Responders.Contains(newResponder))
             {
                 return;
             }
-
-            if (!newResponder.GetType().GetCustomAttributes(typeof (ResponderAttribute), true).Any())
+            
+            List<ResponderAttribute> responderAttributes = newResponder
+                .GetType()
+                .GetCustomAttributes<ResponderAttribute>(true)
+                .ToList();
+            if (!responderAttributes.Any())
             {
-                throw new ArgumentException("the added responder does not have a ResponderAttribute", "newResponder");
+                throw new ArgumentException("the added responder does not have a ResponderAttribute", nameof(newResponder));
             }
 
             Responders.Add(newResponder);
+
+            // obtain the endpoint prefixes of this responder
+            var endpointPrefixes = new List<string>();
+            foreach (ResponderAttribute responderAttribute in responderAttributes)
+            {
+                string pathPrefix = responderAttribute.Path;
+                if (pathPrefix == null)
+                {
+                    endpointPrefixes.Add("");
+                    continue;
+                }
+
+                pathPrefix = pathPrefix.TrimEnd('/');
+                if (!pathPrefix.StartsWith("/"))
+                {
+                    pathPrefix = "/" + pathPrefix;
+                }
+
+                endpointPrefixes.Add(pathPrefix);
+            }
+
+            // obtain information about the endpoints (public, non-static methods)
+            foreach (var method in newResponder.GetType().GetMethods(BindingFlags.Instance | BindingFlags.Public))
+            {
+                // for each endpoint attribute this method has
+                foreach (var endpointAttribute in method.GetCustomAttributes<EndpointAttribute>())
+                {
+                    // method has an endpoint attribute; check if its first argument is a HttpListenerContext
+                    ParameterInfo[] methodParams = method.GetParameters();
+                    if (methodParams.Length < 1)
+                    {
+                        throw new ArgumentException($"responder method {method} has Endpoint attribute but no arguments (requires at least HttpListenerContext)");
+                    }
+                    if (methodParams[0].ParameterType != typeof(HttpListenerContext))
+                    {
+                        throw new ArgumentException($"responder method {method} has Endpoint attribute but the type of its first argument is not HttpListenerContext");
+                    }
+
+                    // construct a regular expression pattern to match the path of the endpoint
+                    var newGroupNames = new HashSet<string>();
+                    var newBits = new List<string>();
+                    foreach (string pathBit in endpointAttribute.Path.Split('/'))
+                    {
+                        if (IsPlaceholder(pathBit))
+                        {
+                            string placeholderText = pathBit.Substring(1, pathBit.Length - 2);
+                            if (newGroupNames.Contains(placeholderText))
+                            {
+                                throw new ArgumentException($"multiple placeholders named '{placeholderText}' in path endpoint '{endpointAttribute.Path}'");
+                            }
+                            newGroupNames.Add(placeholderText);
+                            newBits.Add($"(?<{placeholderText}>[^/]+)");
+                        }
+                        else
+                        {
+                            newBits.Add(Regex.Escape(pathBit));
+                        }
+                        string regexString = string.Join("/", newBits);
+
+                        // verify if all arguments have explicit or default values
+                        foreach (ParameterInfo param in methodParams.Skip(1))
+                        {
+                            if (!newGroupNames.Contains(param.Name) && !param.HasDefaultValue)
+                            {
+                                throw new ArgumentException($"method {method} endpoint '{endpointAttribute.Path}' does not handle argument {param.Name}");
+                            }
+                        }
+
+                        // apply each endpoint prefix in turn
+                        foreach (string endpointPrefix in endpointPrefixes)
+                        {
+                            string fullRegexString = $"^{Regex.Escape(endpointPrefix)}{regexString}$";
+                            Regex matcher = ObtainRegex(fullRegexString);
+                            Handlers.Add(new UriHandler(matcher, newGroupNames, newResponder, method,
+                                endpointAttribute));
+                        }
+                    }
+                }
+            }
         }
 
         /// <summary>
@@ -136,14 +219,22 @@ namespace RavuAlHemio.HttpDispatcher
         /// <returns><c>true</c> if the responder has been removed, <c>false</c> if it was not contained
         /// in the responder chain in the first place.</returns>
         /// <param name="responder">The responder to remove.</param>
-        public bool RemoveResponder(object responder)
+        public virtual bool RemoveResponder(object responder)
         {
             if (responder == null)
             {
-                throw new ArgumentNullException("responder");
+                throw new ArgumentNullException(nameof(responder));
             }
 
-            return Responders.Remove(responder);
+            bool removed = Responders.Remove(responder);
+            if (!removed)
+            {
+                return false;
+            }
+
+            // also remove all handlers with this responder
+            int numRemoved = Handlers.RemoveAll(h => h.Responder == responder);
+            return (numRemoved > 0);
         }
 
         /// <summary>
@@ -215,238 +306,160 @@ namespace RavuAlHemio.HttpDispatcher
                 return;
             }
 
-            // find a responder
-            foreach (var responder in Responders)
+            // find a handler
+            foreach (var handler in Handlers)
             {
-                var endpointPrefixes = new HashSet<string>();
-                foreach (
-                    var responderAttribute in
-                        responder.GetType()
-                            .GetCustomAttributes(typeof (ResponderAttribute), true)
-                            .Select(a => (ResponderAttribute) a))
+                Match match = handler.Matcher.Match(path);
+                if (!match.Success)
                 {
-                    var pathPrefix = responderAttribute.Path;
-                    if (pathPrefix == null)
+                    continue;
+                }
+
+                // we found a match
+                var argumentStrings = new Dictionary<string, string>();
+                foreach (string groupName in handler.ParameterNames)
+                {
+                    argumentStrings[groupName] = match.Groups[groupName].Value;
+                }
+
+                ParameterInfo[] parameters = handler.Endpoint.GetParameters();
+                // this has been verified during adding
+                Debug.Assert(parameters.Length > 0);
+                Debug.Assert(parameters[0].ParameterType == typeof(HttpListenerContext));
+
+                // add the context as the first argument value
+                var argValues = new List<object> {context};
+
+                var failed = false;
+                foreach (ParameterInfo argument in parameters.Skip(1))
+                {
+                    if (!handler.ParameterNames.Contains(argument.Name))
                     {
-                        endpointPrefixes.Add("");
+                        // this has been verified during adding
+                        Debug.Assert(argument.HasDefaultValue);
+
+                        argValues.Add(argument.DefaultValue);
                         continue;
                     }
-                    while (pathPrefix.EndsWith("/"))
+
+                    string str = HttpDispatcherUtil.UrlDecodeUtf8(argumentStrings[argument.Name]);
+
+                    var e = new ParseValueEventArgs(context, handler.Responder, handler.Endpoint, argument.Name,
+                        argument.ParameterType, str);
+                    OnParseValue(e);
+                    if (e.Responded)
                     {
-                        pathPrefix = pathPrefix.Substring(0, pathPrefix.Length - 1);
-                    }
-                    if (!pathPrefix.StartsWith("/"))
-                    {
-                        pathPrefix = "/" + pathPrefix;
-                    }
-
-                    endpointPrefixes.Add(pathPrefix);
-                }
-
-                // find a public, non-static method that would respond to this request
-                foreach (var method in responder.GetType().GetMethods(BindingFlags.Instance | BindingFlags.Public))
-                {
-                    // for each endpoint attribute this method has
-                    foreach (var endpoint in method.GetCustomAttributes(typeof (EndpointAttribute), true).Select(a => (EndpointAttribute)a))
-                    {
-                        // see if we already have a pattern for this attribute
-                        if (!EndpointAttributeToRegexString.ContainsKey(endpoint))
-                        {
-                            // nope
-                            // construct a regular expression pattern to match the path of the endpoint
-                            var newGroupNames = new HashSet<string>();
-                            var newBits = endpoint.Path.Split('/').Select(p =>
-                            {
-                                if (IsPlaceholder(p))
-                                {
-                                    var placeholderText = p.Substring(1, p.Length - 2);
-                                    if (newGroupNames.Contains(placeholderText))
-                                    {
-                                        throw new ArgumentException(string.Format("multiple placeholders named '{0}' in path endpoint", placeholderText));
-                                    }
-                                    newGroupNames.Add(placeholderText);
-                                    return string.Format("(?<{0}>[^/]+)", placeholderText);
-                                }
-                                else
-                                {
-                                    return Regex.Escape(p);
-                                }
-                            });
-                            var regexString = string.Join("[/]", newBits);
-                            EndpointAttributeToRegexString[endpoint] = regexString;
-                            EndpointAttributeToGroupNames[endpoint] = newGroupNames;
-                        }
-
-                        var endpointPart = EndpointAttributeToRegexString[endpoint];
-                        var groupNames = EndpointAttributeToGroupNames[endpoint];
-                        Match match = null;
-                        foreach (var endpointPrefix in endpointPrefixes)
-                        {
-                            var regexString = "^" + Regex.Escape(endpointPrefix) + endpointPart + "$";
-                            var regex = RegexCache.ContainsKey(regexString)
-                                ? RegexCache[regexString]
-                                : (RegexCache[regexString] = new Regex(regexString, RegexOptions.Compiled));
-
-                            match = regex.Match(path);
-                            if (match.Success)
-                            {
-                                // the path handled by this endpoint matches the request's path
-                                break;
-                            }
-                        }
-                        if (match == null || !match.Success)
-                        {
-                            // this endpoint doesn't match the path
-                            continue;
-                        }
-
-                        var argumentStrings = new Dictionary<string, string>();
-                        foreach (var groupName in groupNames)
-                        {
-                            argumentStrings[groupName] = match.Groups[groupName].Value;
-                        }
-
-                        // try matching the arguments
-                        var argValues = new List<object>();
-                        var parameters = method.GetParameters();
-                        if (parameters.Length < 1)
-                        {
-                            // needs at least one parameter (context)
-                            continue;
-                        }
-                        if (parameters[0].ParameterType != typeof(HttpListenerContext))
-                        {
-                            // first parameter isn't the context
-                            throw new ArgumentException(string.Format("handler method {0}'s first argument is not an HttpListenerContext", method.Name));
-                        }
-
-                        // add the context to the beginning
-                        argValues.Add(context);
-
-                        var failed = false;
-                        foreach (var argument in method.GetParameters().Skip(1))
-                        {
-                            if (!groupNames.Contains(argument.Name))
-                            {
-                                if (argument.HasDefaultValue)
-                                {
-                                    // this argument isn't specified in the endpoint attribute; give it the default value
-                                    argValues.Add(argument.DefaultValue);
-                                    continue;
-                                }
-                                throw new ArgumentException(string.Format("argument '{0}' is unmatched and has no default value", argument.Name));
-                            }
-
-                            var str = HttpDispatcherUtil.UrlDecodeUtf8(argumentStrings[argument.Name]);
-
-                            var e = new ParseValueEventArgs(context, responder, method, argument.Name, argument.ParameterType, str);
-                            OnParseValue(e);
-                            if (e.Responded)
-                            {
-                                return;
-                            }
-
-                            if (e.Parsed)
-                            {
-                                argValues.Add(str);
-                            }
-                            // some defaults
-                            else if (argument.ParameterType == typeof(string))
-                            {
-                                argValues.Add(str);
-                            }
-                            else if (argument.ParameterType == typeof(int)
-                                || argument.ParameterType == typeof(int?))
-                            {
-                                var value = HttpDispatcherUtil.ParseIntOrNull(str);
-                                if (!value.HasValue)
-                                {
-                                    failed = true;
-                                    break;
-                                }
-                                argValues.Add(value.Value);
-                            }
-                            else if (argument.ParameterType == typeof(long)
-                                || argument.ParameterType == typeof(long?))
-                            {
-                                var value = HttpDispatcherUtil.ParseLongOrNull(str);
-                                if (!value.HasValue)
-                                {
-                                    failed = true;
-                                    break;
-                                }
-                                argValues.Add(value.Value);
-                            }
-                            else if (argument.ParameterType == typeof(double)
-                                || argument.ParameterType == typeof(double?))
-                            {
-                                var value = HttpDispatcherUtil.ParseDoubleOrNull(str);
-                                if (!value.HasValue)
-                                {
-                                    failed = true;
-                                    break;
-                                }
-                                argValues.Add(value.Value);
-                            }
-                            else if (argument.ParameterType == typeof(decimal)
-                                || argument.ParameterType == typeof(decimal?))
-                            {
-                                var value = HttpDispatcherUtil.ParseDecimalOrNull(str);
-                                if (!value.HasValue)
-                                {
-                                    failed = true;
-                                    break;
-                                }
-                                argValues.Add(value.Value);
-                            }
-                            else
-                            {
-                                throw new ArgumentException(string.Format("argument '{0}' has unknown type {1}", argument.Name, argument.ParameterType));
-                            }
-                        }
-
-                        if (failed)
-                        {
-                            // unmatched argument; continue
-                            continue;
-                        }
-
-                        if (endpoint.Method != null && endpoint.Method != httpMethod)
-                        {
-                            // endpoint's HTTP method doesn't match request's HTTP method
-                            if (availableMethodsForPath == null)
-                            {
-                                availableMethodsForPath = new List<string>();
-                            }
-                            availableMethodsForPath.Add(endpoint.Method);
-                            continue;
-                        }
-
-                        // if we got this far, dispatch it
-                        var eea = new EndpointEventArgs(context, responder, method);
-                        OnCallingEndpoint(eea);
-                        if (eea.Responded)
-                        {
-                            return;
-                        }
-
-                        try
-                        {
-                            method.Invoke(responder, argValues.ToArray());
-                        }
-                        catch (TargetInvocationException exc)
-                        {
-                            var reea = new ResponderExceptionEventArgs(context, responder, method, exc.InnerException);
-                            OnResponderException(reea);
-                            if (reea.Responded)
-                            {
-                                return;
-                            }
-                            SendJson500Exception(context, exc);
-                        }
                         return;
                     }
+
+                    if (e.Parsed)
+                    {
+                        argValues.Add(str);
+                        continue;
+                    }
+
+                    // some defaults
+                    if (argument.ParameterType == typeof(string))
+                    {
+                        argValues.Add(str);
+                    }
+                    else if (argument.ParameterType == typeof(int)
+                             || argument.ParameterType == typeof(int?))
+                    {
+                        int? value = HttpDispatcherUtil.ParseIntOrNull(str);
+                        if (!value.HasValue)
+                        {
+                            failed = true;
+                            break;
+                        }
+                        argValues.Add(value.Value);
+                    }
+                    else if (argument.ParameterType == typeof(long)
+                             || argument.ParameterType == typeof(long?))
+                    {
+                        long? value = HttpDispatcherUtil.ParseLongOrNull(str);
+                        if (!value.HasValue)
+                        {
+                            failed = true;
+                            break;
+                        }
+                        argValues.Add(value.Value);
+                    }
+                    else if (argument.ParameterType == typeof(float)
+                             || argument.ParameterType == typeof(float?))
+                    {
+                        double? value = HttpDispatcherUtil.ParseFloatOrNull(str);
+                        if (!value.HasValue)
+                        {
+                            failed = true;
+                            break;
+                        }
+                        argValues.Add((float)value.Value);
+                    }
+                    else if (argument.ParameterType == typeof(double)
+                             || argument.ParameterType == typeof(double?))
+                    {
+                        double? value = HttpDispatcherUtil.ParseDoubleOrNull(str);
+                        if (!value.HasValue)
+                        {
+                            failed = true;
+                            break;
+                        }
+                        argValues.Add(value.Value);
+                    }
+                    else if (argument.ParameterType == typeof(decimal)
+                             || argument.ParameterType == typeof(decimal?))
+                    {
+                        decimal? value = HttpDispatcherUtil.ParseDecimalOrNull(str);
+                        if (!value.HasValue)
+                        {
+                            failed = true;
+                            break;
+                        }
+                        argValues.Add(value.Value);
+                    }
+                    else
+                    {
+                        throw new ArgumentException($"don't know how to parse arguments of type {argument.ParameterType} after encountering argument {argument.Name} of {handler.Endpoint}");
+                    }
                 }
+
+                if (failed)
+                {
+                    // unmatched argument; try next matcher
+                    continue;
+                }
+
+                if (handler.EndpointAttribute.Method != null && handler.EndpointAttribute.Method != httpMethod)
+                {
+                    // endpoint's HTTP method doesn't match request's HTTP method
+                    availableMethodsForPath.Add(handler.EndpointAttribute.Method);
+                    continue;
+                }
+
+                // we're ready; dispatch it
+                var eea = new EndpointEventArgs(context, handler.Responder, handler.Endpoint);
+                OnCallingEndpoint(eea);
+                if (eea.Responded)
+                {
+                    return;
+                }
+
+                try
+                {
+                    handler.Endpoint.Invoke(handler.Responder, argValues.ToArray());
+                }
+                catch (TargetInvocationException exc)
+                {
+                    var reea = new ResponderExceptionEventArgs(context, handler.Responder, handler.Endpoint, exc.InnerException);
+                    OnResponderException(reea);
+                    if (reea.Responded)
+                    {
+                        return;
+                    }
+                    SendJson500Exception(context, exc);
+                }
+                return;
             }
 
             // call the unhandled request handler
@@ -467,7 +480,7 @@ namespace RavuAlHemio.HttpDispatcher
         /// <summary>
         /// Handles requests.
         /// </summary>
-        protected void Proc()
+        protected virtual void Proc()
         {
             while (!_stopNow)
             {
@@ -552,6 +565,19 @@ namespace RavuAlHemio.HttpDispatcher
             {
                 // there's nothing we can do...
             }
+        }
+
+        protected Regex ObtainRegex(string regexString)
+        {
+            Regex regex;
+            if (RegexCache.TryGetValue(regexString, out regex))
+            {
+                return regex;
+            }
+            
+            regex = new Regex(regexString, RegexOptions.Compiled);
+            RegexCache[regexString] = regex;
+            return regex;
         }
     }
 }

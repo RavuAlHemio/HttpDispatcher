@@ -140,7 +140,22 @@ namespace RavuAlHemio.HttpDispatcher
         }
 
         /// <summary>
-        /// Parses a string containing an <see cref="System.Double"/>; returns <c>null</c> on failure.
+        /// Parses a string containing a <see cref="System.Single"/>; returns <c>null</c> on failure.
+        /// </summary>
+        /// <returns>The <see cref="System.Single"/> on success, or <c>null</c> on failure.</returns>
+        /// <param name="text">The string to parse.</param>
+        public static float? ParseFloatOrNull(string text)
+        {
+            float value;
+            if (!float.TryParse(text, NumberStyles.Float, CultureInfo.InvariantCulture, out value))
+            {
+                return null;
+            }
+            return value;
+        }
+
+        /// <summary>
+        /// Parses a string containing a <see cref="System.Double"/>; returns <c>null</c> on failure.
         /// </summary>
         /// <returns>The <see cref="System.Double"/> on success, or <c>null</c> on failure.</returns>
         /// <param name="text">The string to parse.</param>
