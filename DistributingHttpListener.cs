@@ -189,25 +189,26 @@ namespace RavuAlHemio.HttpDispatcher
                         {
                             newBits.Add(Regex.Escape(pathBit));
                         }
-                        string regexString = string.Join("/", newBits);
+                    }
 
-                        // verify if all arguments have explicit or default values
-                        foreach (ParameterInfo param in methodParams.Skip(1))
-                        {
-                            if (!newGroupNames.Contains(param.Name) && !param.HasDefaultValue)
-                            {
-                                throw new ArgumentException($"method {method} endpoint '{endpointAttribute.Path}' does not handle argument {param.Name}");
-                            }
-                        }
+                    string regexString = string.Join("/", newBits);
 
-                        // apply each endpoint prefix in turn
-                        foreach (string endpointPrefix in endpointPrefixes)
+                    // verify if all arguments have explicit or default values
+                    foreach (ParameterInfo param in methodParams.Skip(1))
+                    {
+                        if (!newGroupNames.Contains(param.Name) && !param.HasDefaultValue)
                         {
-                            string fullRegexString = $"^{Regex.Escape(endpointPrefix)}{regexString}$";
-                            Regex matcher = ObtainRegex(fullRegexString);
-                            Handlers.Add(new UriHandler(matcher, newGroupNames, newResponder, method,
-                                endpointAttribute));
+                            throw new ArgumentException($"method {method} endpoint '{endpointAttribute.Path}' does not handle argument {param.Name}");
                         }
+                    }
+
+                    // apply each endpoint prefix in turn
+                    foreach (string endpointPrefix in endpointPrefixes)
+                    {
+                        string fullRegexString = $"^{Regex.Escape(endpointPrefix)}{regexString}$";
+                        Regex matcher = ObtainRegex(fullRegexString);
+                        Handlers.Add(new UriHandler(matcher, newGroupNames, newResponder, method,
+                            endpointAttribute));
                     }
                 }
             }
