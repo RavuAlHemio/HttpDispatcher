@@ -1,12 +1,11 @@
 ﻿using System.Collections.Generic;
-using System.Net;
 
-namespace RavuAlHemio.HttpDispatcher
+namespace RavuAlHemio.HttpDispatcher.Generic
 {
     /// <summary>
-    /// Provides data for the <see cref="DistributingHttpListener.UnhandledRequest"/> event.
+    /// Provides data for the <see cref="GenericDistributingHttpServer{TContext}.UnhandledRequest"/> event.
     /// </summary>
-    public class UnhandledRequestEventArgs : ListenerEventArgs
+    public class UnhandledRequestEventArgs<TContext> : HttpServerEventArgs<TContext>
     {
         /// <summary>
         /// If at least one handler was found for this path, but the HTTP method of the handler didn't match the HTTP
@@ -18,9 +17,9 @@ namespace RavuAlHemio.HttpDispatcher
         /// <summary>
         /// Initializes a new instance of the <see cref="UnhandledRequestEventArgs"/> class.
         /// </summary>
-        /// <param name="context">The <see cref="HttpListenerContext"/> containing
+        /// <param name="context">The <typeparamref name="TContext"/> containing
         /// information pertaining to the active request.</param>
-        public UnhandledRequestEventArgs(HttpListenerContext context)
+        public UnhandledRequestEventArgs(TContext context)
             : base(context)
         {
         }

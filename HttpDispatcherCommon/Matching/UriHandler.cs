@@ -54,7 +54,7 @@ namespace RavuAlHemio.HttpDispatcher.Matching
         {
             Contract.Invariant(Matcher != null);
             Contract.Invariant(Responder != null);
-            Contract.Invariant(Responder.GetType().GetCustomAttributes<ResponderAttribute>().Any());
+            Contract.Invariant(Responder.GetType().GetTypeInfo().GetCustomAttributes<ResponderAttribute>().Any());
             Contract.Invariant(Endpoint != null);
             Contract.Invariant(EndpointAttribute != null);
             Contract.Invariant(Endpoint.GetCustomAttributes<EndpointAttribute>().Contains(EndpointAttribute));

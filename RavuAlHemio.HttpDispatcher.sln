@@ -1,11 +1,17 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.24720.0
+VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RavuAlHemio.HttpDispatcher", "RavuAlHemio.HttpDispatcher\RavuAlHemio.HttpDispatcher.csproj", "{3E3E19D7-51AF-462C-91EF-E4CB0F3C7883}"
 EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "HttpDispatcherCommon", "HttpDispatcherCommon\HttpDispatcherCommon.shproj", "{D6AF04E5-906C-4072-A118-26B148A13868}"
+EndProject
 Global
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		HttpDispatcherCommon\HttpDispatcherCommon.projitems*{3e3e19d7-51af-462c-91ef-e4cb0f3c7883}*SharedItemsImports = 4
+		HttpDispatcherCommon\HttpDispatcherCommon.projitems*{d6af04e5-906c-4072-a118-26b148a13868}*SharedItemsImports = 13
+	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU

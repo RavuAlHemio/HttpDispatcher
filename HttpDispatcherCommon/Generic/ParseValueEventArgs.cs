@@ -1,13 +1,12 @@
 ﻿using System;
-using System.Net;
 using System.Reflection;
 
-namespace RavuAlHemio.HttpDispatcher
+namespace RavuAlHemio.HttpDispatcher.Generic
 {
     /// <summary>
-    /// Provides data for the <see cref="DistributingHttpListener.ParseValue"/> event.
+    /// Provides data for the <see cref="GenericDistributingHttpServer{TContext}.ParseValue"/> event.
     /// </summary>
-    public class ParseValueEventArgs : EndpointEventArgs
+    public class ParseValueEventArgs<TContext> : EndpointEventArgs<TContext>
     {
         /// <summary>
         /// Gets or sets the name of the path argument whose value is
@@ -38,7 +37,7 @@ namespace RavuAlHemio.HttpDispatcher
         /// </summary>
         public object Value { get; set; }
 
-        public ParseValueEventArgs(HttpListenerContext context, object responder, MethodInfo endpoint, string argumentName, Type argumentType, string stringValue)
+        public ParseValueEventArgs(TContext context, object responder, MethodInfo endpoint, string argumentName, Type argumentType, string stringValue)
             : base(context, responder, endpoint)
         {
             ArgumentName = argumentName;

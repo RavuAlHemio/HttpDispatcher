@@ -1,13 +1,12 @@
-﻿using System;
-using System.Net;
+﻿using System.Net;
 using System.Reflection;
 
-namespace RavuAlHemio.HttpDispatcher
+namespace RavuAlHemio.HttpDispatcher.Generic
 {
     /// <summary>
-    /// Provides data for the <see cref="DistributingHttpListener.CallingEndpoint"/> event.
+    /// Provides data for the <see cref="GenericDistributingHttpServer{TContext}.CallingEndpoint"/> event.
     /// </summary>
-    public class EndpointEventArgs : ListenerEventArgs
+    public class EndpointEventArgs<TContext> : HttpServerEventArgs<TContext>
     {
         /// <summary>
         /// Gets the responder whose endpoint method will be called next (unless <see cref="Responded"/>
@@ -23,12 +22,13 @@ namespace RavuAlHemio.HttpDispatcher
 
         /// <summary>
         /// Initializes a new instance of the
-        /// <see cref="ResponderExceptionEventArgs"/> class.
+        /// <see cref="GenericEndpointEventArgs{TContext}"/> class.
         /// </summary>
-        /// <param name="context">The <see cref="HttpListenerContext"/> containing
+        /// <param name="context">The <typeparamref name="TContext"/> containing
         /// information pertaining to the active request.</param>
-        /// <param name="exception">The exception that has been thrown by the responder.</param>
-        public EndpointEventArgs(HttpListenerContext context, object responder, MethodInfo endpoint)
+        /// <param name="responder">The responder whose endpoint is being called.</param>
+        /// <param name="endpoint">The endpoint that is being called.</param>
+        public EndpointEventArgs(TContext context, object responder, MethodInfo endpoint)
             : base(context)
         {
             Responder = responder;

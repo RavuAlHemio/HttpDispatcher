@@ -1,13 +1,11 @@
 ﻿using System;
-using System.Net;
-using System.Reflection;
 
-namespace RavuAlHemio.HttpDispatcher
+namespace RavuAlHemio.HttpDispatcher.Generic
 {
     /// <summary>
-    /// Provides data for the <see cref="DistributingHttpListener.ResponderException"/> event.
+    /// Provides data for the <see cref="GenericDistributingHttpServer{TContext}.DistributionException"/> event.
     /// </summary>
-    public class ResponderExceptionEventArgs : EndpointEventArgs
+    public class DistributionExceptionEventArgs<TContext> : HttpServerEventArgs<TContext>
     {
         /// <summary>
         /// Gets or sets a value indicating whether an event handler has already
@@ -20,13 +18,11 @@ namespace RavuAlHemio.HttpDispatcher
         /// Initializes a new instance of the
         /// <see cref="ResponderExceptionEventArgs"/> class.
         /// </summary>
-        /// <param name="context">The <see cref="HttpListenerContext"/> containing
+        /// <param name="context">The <typeparamref name="TContext"/> containing
         /// information pertaining to the active request.</param>
-        /// <param name="responder">The responder whose endpoint method has thrown the exception.</param>
-        /// <param name="endpoint">The endpoint method which has thrown the exception.</param>
         /// <param name="exception">The exception that has been thrown by the responder.</param>
-        public ResponderExceptionEventArgs(HttpListenerContext context, object responder, MethodInfo endpoint, Exception exception)
-            : base(context, responder, endpoint)
+        public DistributionExceptionEventArgs(TContext context, Exception exception)
+            : base(context)
         {
             Exception = exception;
         }

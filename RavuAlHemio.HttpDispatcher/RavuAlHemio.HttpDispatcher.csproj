@@ -34,19 +34,7 @@
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="DistributingHttpListener.cs" />
-    <Compile Include="EndpointAttribute.cs" />
-    <Compile Include="ResponderAttribute.cs" />
-    <Compile Include="HttpDispatcherUtil.cs" />
-    <Compile Include="ResponderExceptionEventArgs.cs" />
-    <Compile Include="EndpointEventArgs.cs" />
-    <Compile Include="ParseValueEventArgs.cs" />
-    <Compile Include="ListenerEventArgs.cs" />
-    <Compile Include="DistributionExceptionEventArgs.cs" />
-    <Compile Include="UnhandledRequestEventArgs.cs" />
-    <Compile Include="Matching\UriHandler.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <None Include="RavuAlHemio.HttpDispatcher.nuspec" />
-  </ItemGroup>
+  <Import Project="..\HttpDispatcherCommon\HttpDispatcherCommon.projitems" Label="Shared" />
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>
