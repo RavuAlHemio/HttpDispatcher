@@ -121,7 +121,7 @@ namespace RavuAlHemio.HttpDispatcher
             {
                 return;
             }
-            
+
             List<ResponderAttribute> responderAttributes = newResponder
                 .GetType()
                 .GetCustomAttributes<ResponderAttribute>(true)
@@ -575,7 +575,7 @@ namespace RavuAlHemio.HttpDispatcher
             {
                 return regex;
             }
-            
+
             regex = new Regex(regexString, RegexOptions.Compiled);
             RegexCache[regexString] = regex;
             return regex;

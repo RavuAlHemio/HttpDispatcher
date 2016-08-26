@@ -13,7 +13,7 @@
     <tags>HttpListener</tags>
   </metadata>
   <files>
-    <file src="bin/Debug/RavuAlHemio.HttpDispatcher.dll" target="lib\net45\" />
-    <file src="bin/Debug/RavuAlHemio.HttpDispatcher.pdb" target="lib\net45\" />
+    <file src="RavuAlHemio.HttpDispatcher/bin/Debug/RavuAlHemio.HttpDispatcher.dll" target="lib\net45\" />
+    <file src="RavuAlHemio.HttpDispatcher/bin/Debug/RavuAlHemio.HttpDispatcher.pdb" target="lib\net45\" />
   </files>
 </package>
