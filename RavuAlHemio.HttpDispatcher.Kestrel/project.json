@@ -11,7 +11,7 @@
     "netstandard1.6": {
       "imports": "dnxcore50"
     },
-    "dnx46": {}
+    "dnx451": {}
   },
 
   "buildOptions": {

@@ -12,7 +12,7 @@
     <copyright>Copyright &#169; 2015 Ond&#345;ej Ho&#353;ek</copyright>
     <tags>HttpListener</tags>
     <dependencies>
-      <group targetFramework=".NETFramework4.6">
+      <group targetFramework=".NETFramework4.5.1">
         <dependency id="Microsoft.AspNetCore.Server.Kestrel" version="1.0.0" />
       </group>
       <group targetFramework=".NETStandard1.6">
@@ -22,8 +22,8 @@
     </dependencies>
   </metadata>
   <files>
-    <file src="RavuAlHemio.HttpDispatcher.Kestrel/bin/Debug/dnx46/RavuAlHemio.HttpDispatcher.Kestrel.dll" target="lib\net46\" />
-    <file src="RavuAlHemio.HttpDispatcher.Kestrel/bin/Debug/dnx46/RavuAlHemio.HttpDispatcher.Kestrel.pdb" target="lib\net46\" />
+    <file src="RavuAlHemio.HttpDispatcher.Kestrel/bin/Debug/dnx451/RavuAlHemio.HttpDispatcher.Kestrel.dll" target="lib\net451\" />
+    <file src="RavuAlHemio.HttpDispatcher.Kestrel/bin/Debug/dnx451/RavuAlHemio.HttpDispatcher.Kestrel.pdb" target="lib\net451\" />
     <file src="RavuAlHemio.HttpDispatcher.Kestrel/bin/Debug/netstandard1.6/RavuAlHemio.HttpDispatcher.Kestrel.dll" target="lib\netstandard1.6\" />
     <file src="RavuAlHemio.HttpDispatcher.Kestrel/bin/Debug/netstandard1.6/RavuAlHemio.HttpDispatcher.Kestrel.pdb" target="lib\netstandard1.6\" />
   </files>
