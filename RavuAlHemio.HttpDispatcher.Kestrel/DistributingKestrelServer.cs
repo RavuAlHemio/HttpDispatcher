@@ -15,7 +15,7 @@ namespace RavuAlHemio.HttpDispatcher.Kestrel
         private bool _disposed;
 
         public DistributingKestrelServer(string uriPrefix)
-            : base(uriPrefix)
+            : base()
         {
             WebHost = new WebHostBuilder()
                 .UseKestrel()

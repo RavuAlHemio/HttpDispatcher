@@ -21,7 +21,7 @@ namespace RavuAlHemio.HttpDispatcher
         /// </summary>
         /// <param name="uriPrefix">URI prefix.</param>
         public DistributingHttpListener(string uriPrefix)
-            : base(uriPrefix)
+            : base()
         {
             Listener = new HttpListener();
             Listener.Prefixes.Add(uriPrefix);

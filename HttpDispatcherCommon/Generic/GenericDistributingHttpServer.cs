@@ -92,8 +92,7 @@ namespace RavuAlHemio.HttpDispatcher.Generic
         /// <summary>
         /// Initializes a distributing HTTP listener on the given URI prefix.
         /// </summary>
-        /// <param name="uriPrefix">URI prefix.</param>
-        public GenericDistributingHttpServer(string uriPrefix)
+        protected GenericDistributingHttpServer()
         {
             CancellerSource = new CancellationTokenSource();
             Responders = new List<object>();
