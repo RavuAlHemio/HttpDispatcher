@@ -1,0 +1,21 @@
+﻿{
+  "version": "1.0.0-*",
+  "buildOptions": {
+    "emitEntryPoint": true,
+    "compile": {
+      "include": [
+        "../KestrelDemoCode/**/*.cs"
+      ]
+    }
+  },
+  "frameworks": {
+    "dnx46": {
+      "frameworkAssemblies": {
+        "System.ServiceProcess": "4.0.0.0"
+      }
+    }
+  },
+  "dependencies": {
+    "RavuAlHemio.HttpDispatcher.Kestrel": "1.0.0-*"
+  }
+}
