@@ -29,8 +29,6 @@ namespace RavuAlHemio.HttpDispatcher.Kestrel
                     });
                 })
                 .Build();
-
-            WebHost.Start();
         }
 
         public override void Start()
