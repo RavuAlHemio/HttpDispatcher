@@ -12,6 +12,8 @@ namespace RavuAlHemio.HttpDispatcher.Kestrel
     {
         protected readonly IWebHost WebHost;
 
+        private bool _disposed;
+
         public DistributingKestrelServer(string uriPrefix)
             : base(uriPrefix)
         {
@@ -85,6 +87,22 @@ namespace RavuAlHemio.HttpDispatcher.Kestrel
             {
                 // there's nothing we can do...
             }
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (_disposed)
+            {
+                return;
+            }
+
+            if (disposing)
+            {
+                WebHost.Dispose();
+            }
+
+            _disposed = true;
+            base.Dispose(disposing);
         }
     }
 }

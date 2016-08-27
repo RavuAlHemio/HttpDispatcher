@@ -12,7 +12,7 @@ namespace RavuAlHemio.HttpDispatcher.Generic
     /// <summary>
     /// An HTTP listener that forwards requests to the registered responders' endpoint-handling methods.
     /// </summary>
-    public abstract class GenericDistributingHttpServer<TContext>
+    public abstract class GenericDistributingHttpServer<TContext> : IDisposable
     {
         protected static readonly HashSet<char> SimpleAlphanumeric = new HashSet<char>("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789");
 
@@ -20,6 +20,8 @@ namespace RavuAlHemio.HttpDispatcher.Generic
         protected readonly List<object> Responders;
         protected readonly List<UriHandler> Handlers;
         protected readonly Dictionary<string, Regex> RegexCache;
+
+        private bool _disposed;
 
         /// <summary>
         /// Occurs when a request has been received, before responders are searched
@@ -97,6 +99,7 @@ namespace RavuAlHemio.HttpDispatcher.Generic
             Responders = new List<object>();
             Handlers = new List<UriHandler>();
             RegexCache = new Dictionary<string, Regex>();
+            _disposed = false;
         }
 
         /// <summary>
@@ -473,5 +476,26 @@ namespace RavuAlHemio.HttpDispatcher.Generic
 
         protected abstract string RequestHttpMethodFromContext(TContext context);
         protected abstract Uri RequestUriFromContext(TContext context);
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (_disposed)
+            {
+                return;
+            }
+
+            if (disposing)
+            {
+                CancellerSource.Dispose();
+            }
+
+            _disposed = true;
+        }
     }
 }

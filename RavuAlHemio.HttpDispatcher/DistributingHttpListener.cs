@@ -14,6 +14,8 @@ namespace RavuAlHemio.HttpDispatcher
         protected readonly HttpListener Listener;
         protected readonly Thread AcceptorThread;
 
+        private bool _disposed;
+
         /// <summary>
         /// Initializes a distributing HTTP listener on the given URI prefix.
         /// </summary>
@@ -24,6 +26,7 @@ namespace RavuAlHemio.HttpDispatcher
             Listener = new HttpListener();
             Listener.Prefixes.Add(uriPrefix);
             AcceptorThread = new Thread(Proc) { Name = "DistributingHttpListener acceptor" };
+            _disposed = false;
         }
 
         /// <summary>
@@ -158,6 +161,22 @@ namespace RavuAlHemio.HttpDispatcher
             {
                 // there's nothing we can do...
             }
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (_disposed)
+            {
+                return;
+            }
+
+            if (disposing)
+            {
+                Listener.Close();
+            }
+
+            _disposed = true;
+            base.Dispose(disposing);
         }
     }
 }
