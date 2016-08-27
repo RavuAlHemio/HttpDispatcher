@@ -10,24 +10,37 @@ namespace RavuAlHemio.HttpDispatcher.Kestrel
 {
     public class DistributingKestrelServer : GenericDistributingHttpServer<HttpContext>
     {
+        protected readonly IWebHost WebHost;
+
         public DistributingKestrelServer(string uriPrefix)
             : base(uriPrefix)
         {
-            var host = new WebHostBuilder()
+            WebHost = new WebHostBuilder()
                 .UseKestrel()
                 .UseUrls(uriPrefix)
-                .UseStartup(typeof(DistributingKestrelServer))
+                .Configure(app =>
+                {
+                    app.Use(async (ctx, next) =>
+                    {
+                        await Task.Run(() => HandleRequest(ctx));
+                        await next();
+                    });
+                })
                 .Build();
 
-            host.Run(CancellerSource.Token);
+            WebHost.Start();
         }
 
-        public void Configure(IApplicationBuilder app)
+        public override void Start()
         {
-            app.Run(async context =>
-            {
-                await Task.Run(() => HandleRequest(context));
-            });
+            base.Start();
+            WebHost.Start();
+        }
+
+        public override void Stop()
+        {
+            base.Stop();
+            WebHost.Dispose();
         }
 
         protected override string RequestHttpMethodFromContext(HttpContext context)
