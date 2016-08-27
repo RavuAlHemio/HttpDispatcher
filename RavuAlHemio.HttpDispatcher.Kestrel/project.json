@@ -4,14 +4,15 @@
   "dependencies": {
     "Microsoft.AspNetCore.Server.Kestrel": "1.0.0",
     "NETStandard.Library": "1.6.0",
-    "System.Diagnostics.Contracts": "4.0.1",
-    "System.Threading.Thread": "4.0.0"
+    "System.Diagnostics.Contracts": "4.0.*",
+    "System.Threading.Thread": "4.0.*"
   },
 
   "frameworks": {
     "netstandard1.6": {
       "imports": "dnxcore50"
-    }
+    },
+    "dnx46": {}
   },
 
   "buildOptions": {
