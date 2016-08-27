@@ -15,7 +15,7 @@
       "type": "platform",
       "version": "1.0.0"
     },
-    "RavuAlHemio.HttpDispatcher.Kestrel": "1.0.0-*"
+    "RavuAlHemio.HttpDispatcher.Kestrel": "0.0.19-*"
   },
 
   "frameworks": {
