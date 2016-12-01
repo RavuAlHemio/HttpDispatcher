@@ -15,6 +15,7 @@
   },
 
   "buildOptions": {
+    "debugType": "portable",
     "compile": {
       "include": [
         "../HttpDispatcherCommon/**/*.cs"
