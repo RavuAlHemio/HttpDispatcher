@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using RavuAlHemio.HttpDispatcher.Kestrel;
 
 namespace RavuAlHemio.HttpDispatcher.Demos.Kestrel.CLIDemo
@@ -13,13 +14,20 @@ namespace RavuAlHemio.HttpDispatcher.Demos.Kestrel.CLIDemo
                 listener.AddResponder(responder);
                 listener.Start();
 
-                Console.WriteLine("Press Enter or Escape to stop.");
-                for (;;)
+                if (Console.IsInputRedirected)
                 {
-                    ConsoleKeyInfo key = Console.ReadKey(intercept: true);
-                    if (key.Key == ConsoleKey.Enter || key.Key == ConsoleKey.Escape)
+                    Thread.Sleep(Timeout.Infinite);
+                }
+                else
+                {
+                    Console.WriteLine("Press Enter or Escape to stop.");
+                    for (;;)
                     {
-                        break;
+                        ConsoleKeyInfo key = Console.ReadKey(intercept: true);
+                        if (key.Key == ConsoleKey.Enter || key.Key == ConsoleKey.Escape)
+                        {
+                            break;
+                        }
                     }
                 }
 
