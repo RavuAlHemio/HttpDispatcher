@@ -17,6 +17,6 @@
     }
   },
   "dependencies": {
-    "RavuAlHemio.HttpDispatcher.Kestrel": "0.0.21-*"
+    "RavuAlHemio.HttpDispatcher.Kestrel": "0.0.22-*"
   }
 }
