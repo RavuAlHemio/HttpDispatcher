@@ -2,16 +2,21 @@
   "version": "0.0.21-*",
 
   "dependencies": {
-    "Microsoft.AspNetCore.Server.Kestrel": "1.0.0",
-    "NETStandard.Library": "1.6.0",
-    "System.Diagnostics.Contracts": "4.0.*"
+    "Microsoft.AspNetCore.Server.Kestrel": "1.1.0",
+    "NETStandard.Library": "1.6.1"
   },
 
   "frameworks": {
-    "netstandard1.6": {
-      "imports": "dnxcore50"
+    "netstandard1.5": {
+      "dependencies": {
+        "System.Diagnostics.Contracts": "4.3.0"
+      }
     },
-    "dnx451": {}
+    "net451": {
+      "frameworkAssemblies": {
+        "System.Diagnostics.Contracts": ""
+      }
+    }
   },
 
   "buildOptions": {
