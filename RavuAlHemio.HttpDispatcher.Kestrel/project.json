@@ -1,6 +1,6 @@
 {
   "name": "RavuAlHemio.HttpDispatcher.Kestrel",
-  "version": "0.0.22-*",
+  "version": "0.0.23-*",
   "title": "RavuAlHemio.HttpDispatcher.Kestrel",
   "authors": [
     "Ondřej Hošek"
