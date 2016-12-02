@@ -9,6 +9,7 @@
   "copyright": "Copyright \u00A9 2015 Ond\u0159ej Ho\u0161ek",
   "dependencies": {
     "Microsoft.AspNetCore.Server.Kestrel": "1.1.0",
+    "Microsoft.AspNetCore.Server.Kestrel.Https": "1.1.0",
     "NETStandard.Library": "1.6.1"
   },
   "frameworks": {
