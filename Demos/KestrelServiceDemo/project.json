@@ -10,13 +10,20 @@
     }
   },
   "frameworks": {
-    "dnx46": {
-      "frameworkAssemblies": {
-        "System.ServiceProcess": "4.0.0.0"
+    "netcoreapp1.0": {
+      "dependencies": {
+        "Microsoft.NETCore.App": "1.1.0"
       }
-    }
+    },
+    "net46": {}
   },
   "dependencies": {
-    "RavuAlHemio.HttpDispatcher.Kestrel": "0.0.22-*"
+    "RavuAlHemio.HttpDispatcher.Kestrel": {
+      "target": "project"
+    },
+    "DasMulli.Win32.ServiceUtils": "1.0.1"
+  },
+  "runtimes": {
+    "win7-x64": {}
   }
 }

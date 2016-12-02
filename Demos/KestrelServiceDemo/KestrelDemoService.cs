@@ -1,19 +1,15 @@
-﻿using System.ServiceProcess;
+﻿using DasMulli.Win32.ServiceUtils;
 using RavuAlHemio.HttpDispatcher.Kestrel;
 
 namespace RavuAlHemio.HttpDispatcher.Demos.Kestrel.ServiceDemo
 {
-    public class KestrelDemoService : ServiceBase
+    public class KestrelDemoService : IWin32Service
     {
         private DistributingKestrelServer _listener;
 
-        public KestrelDemoService()
-            : base()
-        {
-            ServiceName = "KestrelDemoService";
-        }
+        public string ServiceName => "KestrelDemoService";
 
-        protected override void OnStart(string[] args)
+        public void Start(string[] startupArguments, ServiceStoppedCallback serviceStoppedCallback)
         {
             var responder = new KestrelResponder();
             _listener = new DistributingKestrelServer("http://localhost:8080/");
@@ -21,7 +17,7 @@ namespace RavuAlHemio.HttpDispatcher.Demos.Kestrel.ServiceDemo
             _listener.Start();
         }
 
-        protected override void OnStop()
+        public void Stop()
         {
             _listener.Stop();
             _listener.Dispose();

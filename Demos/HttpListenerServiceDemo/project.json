@@ -1,0 +1,22 @@
+{
+  "version": "1.0.0-*",
+  "buildOptions": {
+    "debugType": "portable",
+    "emitEntryPoint": true,
+    "compile": {
+      "include": "../HttpListenerDemoCode/*.cs"
+    }
+  },
+  "dependencies": {
+    "RavuAlHemio.HttpDispatcher": {
+      "target": "project"
+    }
+  },
+  "frameworks": {
+    "net45": {
+      "frameworkAssemblies": {
+        "System.ServiceProcess": ""
+      }
+    }
+  }
+}

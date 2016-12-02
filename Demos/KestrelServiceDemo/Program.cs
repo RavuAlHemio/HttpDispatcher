@@ -1,4 +1,4 @@
-﻿using System.ServiceProcess;
+﻿using DasMulli.Win32.ServiceUtils;
 
 namespace RavuAlHemio.HttpDispatcher.Demos.Kestrel.ServiceDemo
 {
@@ -6,11 +6,9 @@ namespace RavuAlHemio.HttpDispatcher.Demos.Kestrel.ServiceDemo
     {
         public static void Main(string[] args)
         {
-            var servicesToRun = new ServiceBase[]
-            {
-                new KestrelDemoService()
-            };
-            ServiceBase.Run(servicesToRun);
+            var service = new KestrelDemoService();
+            var serviceHost = new Win32ServiceHost(service);
+            serviceHost.Run();
         }
     }
 }

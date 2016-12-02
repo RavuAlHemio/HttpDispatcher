@@ -7,12 +7,10 @@
   ],
   "description": "Kestrel wrapper which forwards requests to handler objects' endpoint methods.",
   "copyright": "Copyright \u00A9 2015 Ond\u0159ej Ho\u0161ek",
-
   "dependencies": {
     "Microsoft.AspNetCore.Server.Kestrel": "1.1.0",
     "NETStandard.Library": "1.6.1"
   },
-
   "frameworks": {
     "netstandard1.5": {
       "dependencies": {
@@ -25,7 +23,6 @@
       }
     }
   },
-
   "buildOptions": {
     "debugType": "portable",
     "compile": {
@@ -34,7 +31,6 @@
       ]
     }
   },
-
   "packOptions": {
     "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
     "requireLicenseAcceptance": false,
