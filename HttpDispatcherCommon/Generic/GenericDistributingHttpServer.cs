@@ -278,6 +278,12 @@ namespace RavuAlHemio.HttpDispatcher.Generic
             var availableMethodsForPath = new List<string>();
             var path = realUrl.AbsolutePath;
 
+            // strip multiple slashes
+            while (path.StartsWith("//"))
+            {
+                path = path.Substring(1);
+            }
+
             var lea = new HttpServerEventArgs<TContext>(context);
             OnRequestReceived(lea);
             if (lea.Responded)
