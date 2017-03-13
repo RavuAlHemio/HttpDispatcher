@@ -1,0 +1,30 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Description>HttpListener wrapper which forwards requests to handler objects' endpoint methods.</Description>
+    <Copyright>Copyright © 2015 Ondřej Hošek</Copyright>
+    <AssemblyTitle>RavuAlHemio.HttpDispatcher</AssemblyTitle>
+    <VersionPrefix>0.0.24</VersionPrefix>
+    <Authors>Ondřej Hošek</Authors>
+    <TargetFramework>net45</TargetFramework>
+    <DebugType>portable</DebugType>
+    <AssemblyName>RavuAlHemio.HttpDispatcher</AssemblyName>
+    <PackageId>RavuAlHemio.HttpDispatcher</PackageId>
+    <PackageTags>HttpListener</PackageTags>
+    <PackageProjectUrl>https://github.com/RavuAlHemio/HttpDispatcher</PackageProjectUrl>
+    <PackageLicenseUrl>https://creativecommons.org/publicdomain/zero/1.0/</PackageLicenseUrl>
+    <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
+    <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
+    <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\HttpDispatcherCommon\**\*.cs" Exclude="bin\**;obj\**;**\*.xproj;packages\**" />
+  </ItemGroup>
+
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net45' ">
+    <Reference Include="System" />
+    <Reference Include="Microsoft.CSharp" />
+  </ItemGroup>
+
+</Project>
