@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Net;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
@@ -15,18 +16,25 @@ namespace RavuAlHemio.HttpDispatcher.Kestrel
 
         private bool _disposed;
 
-        public DistributingKestrelServer(string uriPrefix, X509Certificate2 cert = null)
+        public DistributingKestrelServer(int port, IPAddress address = null, X509Certificate2 cert = null)
             : base()
         {
+            if (address == null)
+            {
+                address = IPAddress.Any;
+            }
+
             WebHost = new WebHostBuilder()
                 .UseKestrel(opts =>
                 {
-                    if (cert != null)
+                    opts.Listen(address, port, listenOpts =>
                     {
-                        opts.UseHttps(cert);
-                    }
+                        if (cert != null)
+                        {
+                            listenOpts.UseHttps(cert);
+                        }
+                    });
                 })
-                .UseUrls(uriPrefix)
                 .Configure(app =>
                 {
                     app.Use(async (ctx, next) =>

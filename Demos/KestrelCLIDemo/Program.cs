@@ -9,7 +9,7 @@ namespace RavuAlHemio.HttpDispatcher.Demos.Kestrel.CLIDemo
         public static void Main(string[] args)
         {
             var responder = new KestrelResponder();
-            using (var listener = new DistributingKestrelServer("http://localhost:8080/"))
+            using (var listener = new DistributingKestrelServer(8080))
             {
                 listener.AddResponder(responder);
                 listener.Start();

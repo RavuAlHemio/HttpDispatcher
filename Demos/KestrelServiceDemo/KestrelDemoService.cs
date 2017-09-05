@@ -12,7 +12,7 @@ namespace RavuAlHemio.HttpDispatcher.Demos.Kestrel.ServiceDemo
         public void Start(string[] startupArguments, ServiceStoppedCallback serviceStoppedCallback)
         {
             var responder = new KestrelResponder();
-            _listener = new DistributingKestrelServer("http://localhost:8080/");
+            _listener = new DistributingKestrelServer(8080);
             _listener.AddResponder(responder);
             _listener.Start();
         }

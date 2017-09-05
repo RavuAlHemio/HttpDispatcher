@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net45</TargetFramework>
+    <TargetFramework>net461</TargetFramework>
     <DebugType>portable</DebugType>
     <AssemblyName>HttpListenerServiceDemo</AssemblyName>
     <OutputType>Exe</OutputType>
@@ -25,7 +25,7 @@
     <ProjectReference Include="..\..\RavuAlHemio.HttpDispatcher\RavuAlHemio.HttpDispatcher.csproj" />
   </ItemGroup>
 
-  <ItemGroup Condition=" '$(TargetFramework)' == 'net45' ">
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net461' ">
     <Reference Include="System.ServiceProcess" />
     <Reference Include="System" />
     <Reference Include="Microsoft.CSharp" />
