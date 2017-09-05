@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <Description>HttpListener wrapper which forwards requests to handler objects' endpoint methods.</Description>
-    <Copyright>Copyright © 2015 Ondřej Hošek</Copyright>
+    <Copyright>Copyright © 2015–2017 Ondřej Hošek</Copyright>
     <AssemblyTitle>RavuAlHemio.HttpDispatcher</AssemblyTitle>
     <VersionPrefix>0.0.26</VersionPrefix>
     <Authors>Ondřej Hošek</Authors>
