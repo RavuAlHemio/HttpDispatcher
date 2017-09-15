@@ -4,7 +4,7 @@
     <Description>Kestrel wrapper which forwards requests to handler objects' endpoint methods.</Description>
     <Copyright>Copyright © 2015–2017 Ondřej Hošek</Copyright>
     <AssemblyTitle>RavuAlHemio.HttpDispatcher.Kestrel</AssemblyTitle>
-    <VersionPrefix>0.0.27</VersionPrefix>
+    <VersionPrefix>0.0.28</VersionPrefix>
     <Authors>Ondřej Hošek</Authors>
     <TargetFrameworks>netstandard2.0</TargetFrameworks>
     <DebugType>portable</DebugType>
