@@ -34,6 +34,9 @@ namespace RavuAlHemio.HttpDispatcher.Kestrel
                             listenOpts.UseHttps(cert);
                         }
                     });
+
+                    // don't limit maximum request body size
+                    opts.Limits.MaxRequestBodySize = null;
                 })
                 .Configure(app =>
                 {
