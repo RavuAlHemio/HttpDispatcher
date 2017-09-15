@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
 using RavuAlHemio.HttpDispatcher.Generic;
 
 namespace RavuAlHemio.HttpDispatcher.Kestrel
@@ -16,7 +17,8 @@ namespace RavuAlHemio.HttpDispatcher.Kestrel
 
         private bool _disposed;
 
-        public DistributingKestrelServer(int port, IPAddress address = null, X509Certificate2 cert = null)
+        public DistributingKestrelServer(int port, IPAddress address = null, X509Certificate2 cert = null,
+            Action<KestrelServerOptions> additionalKestrelConfigAction = null)
             : base()
         {
             if (address == null)
@@ -37,6 +39,11 @@ namespace RavuAlHemio.HttpDispatcher.Kestrel
 
                     // don't limit maximum request body size
                     opts.Limits.MaxRequestBodySize = null;
+
+                    if (additionalKestrelConfigAction != null)
+                    {
+                        additionalKestrelConfigAction.Invoke(opts);
+                    }
                 })
                 .Configure(app =>
                 {
